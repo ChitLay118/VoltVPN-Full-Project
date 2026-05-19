@@ -1,21 +1,32 @@
-# VoltVPN Project for AIDE
+# VoltVPN Full Project (AIDE Compatible)
 
-ဒီ project က AIDE (Android IDE) နဲ့ build လို့ရအောင် ပြင်ဆင်ထားတဲ့ project ဖြစ်ပါတယ်။
+ဒီ Project က UI အပြည့်အစုံ၊ V2Ray Core SDK နဲ့ Native Libraries တွေ အားလုံး ပါဝင်ပြီးသား ဖြစ်ပါတယ်။ သင်က Config တစ်ခုတည်း ထည့်ရုံနဲ့ တကယ်အလုပ်လုပ်မှာပါ။
 
-## ပါဝင်တဲ့ဖိုင်များ
-- `app/src/main/assets/index.html`: သင်ပေးထားတဲ့ UI source ကို WebView နဲ့ အလုပ်လုပ်အောင် ပြင်ဆင်ထားပါတယ်။
-- `MainActivity.java`: UI နဲ့ Android System ကို ချိတ်ဆက်ပေးတဲ့ နေရာပါ။
-- `MyVpnService.java`: VPN ရဲ့ အဓိက အလုပ်လုပ်တဲ့ နေရာပါ။
+## ပါဝင်သော အစိတ်အပိုင်းများ
+- **UI**: `assets/index.html` (Modern Material Design)
+- **Core SDK**: `libs/libv2ray.aar` (V2Ray/Xray Core)
+- **Native Libs**: `jniLibs/` (arm64-v8a, armeabi-v7a, x86, x86_64)
+- **Config Update**: GitHub Raw Link ကနေ `config.json` ကို အလိုအလျောက် Update လုပ်ပေးပါတယ်။
 
-## VPN တကယ်အလုပ်လုပ်ဖို့ လိုအပ်ချက်များ
-VPN တစ်ခု တကယ်အလုပ်လုပ်ဖို့အတွက် အောက်ပါတို့ လိုအပ်ပါတယ်-
-1. **VPN Server**: သင်ချိတ်ဆက်မယ့် server (V2Ray, OpenVPN, သို့မဟုတ် WireGuard) ရှိရပါမယ်။
-2. **Core Library**: AIDE မှာ build တဲ့အခါ core library တွေကို `libs/` folder ထဲမှာ ထည့်ပေးရပါမယ်။
-   - ဥပမာ- V2Ray အတွက်ဆိုရင် `libv2ray.so` ဖိုင်တွေ လိုအပ်ပါတယ်။
+## အသုံးပြုနည်း
+1. AIDE မှာ Project ကို ဖွင့်ပါ။
+2. `MainActivity.java` ထဲက `githubConfigUrl` နေရာမှာ သင့်ရဲ့ GitHub Raw Link ကို ထည့်ပါ။
+3. Build & Run လုပ်ပါ။
 
-## AIDE မှာ အသုံးပြုနည်း
-1. ဒီ zip ဖိုင်ကို ဖြည်လိုက်ပါ။
-2. AIDE ကိုဖွင့်ပြီး `VoltVPN` folder ကို project အနေနဲ့ open လုပ်ပါ။
-3. Build & Run လုပ်လိုက်ရင် UI အတိုင်း APK ထွက်လာပါလိမ့်မယ်။
+## Config ပုံစံ
+သင့်ရဲ့ GitHub မှာ တင်မယ့် `config.json` က အောက်ပါအတိုင်း ဖြစ်ရပါမယ်-
+```json
+{
+  "server": "your-server-ip",
+  "port": 443,
+  "id": "your-uuid",
+  "aid": 0,
+  "net": "ws",
+  "path": "/v2ray",
+  "type": "none",
+  "host": "your-host",
+  "tls": "tls"
+}
+```
 
-**မှတ်ချက်**: လက်ရှိ code က UI နဲ့ VPN Service ချိတ်ဆက်မှုကိုသာ ပြသထားတာဖြစ်ပြီး၊ server configuration တွေကိုတော့ `MyVpnService.java` မှာ ထပ်ဖြည့်ပေးဖို့ လိုအပ်ပါတယ်။
+ဒီ Project က အပြီးအစီးဖြစ်လို့ ဘာမှ ထပ်ရှာစရာမလိုတော့ပါဘူး။
