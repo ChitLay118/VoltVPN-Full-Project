@@ -3,18 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VoltVPN</title>
+    <title>VoltVPN - Modern Android Material Design Prototype</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.3); }
+        ::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.5); border-radius: 10px; }
         @keyframes pulseGlow { 0%, 100% { transform: scale(1); opacity: 0.6; box-shadow: 0 0 30px rgba(16, 185, 129, 0.4); } 50% { transform: scale(1.08); opacity: 1; box-shadow: 0 0 50px rgba(16, 185, 129, 0.8); } }
+        @keyframes disconnectPulse { 0%, 100% { transform: scale(1); opacity: 0.4; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); } 50% { transform: scale(1.05); opacity: 0.8; box-shadow: 0 0 35px rgba(59, 130, 246, 0.5); } }
+        @keyframes connectingRotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .animate-connected-pulse { animation: pulseGlow 3s infinite ease-in-out; }
+        .animate-disconnected-pulse { animation: disconnectPulse 4s infinite ease-in-out; }
+        .animate-spin-slow { animation: connectingRotate 1.5s linear infinite; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col p-0 overflow-x-hidden">
-    <div class="w-full max-w-md bg-slate-900 shadow-2xl overflow-hidden flex flex-col min-h-screen relative">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-0 md:p-6 overflow-x-hidden">
+
+    <div class="w-full max-w-md bg-slate-900 md:rounded-[40px] shadow-2xl overflow-hidden border-0 md:border-8 border-slate-800 flex flex-col min-h-screen md:min-h-[850px] relative">
+        
         <header class="px-6 py-4 flex justify-between items-center bg-slate-900 border-b border-slate-800/60 z-40">
             <div class="flex items-center space-x-3">
                 <div class="w-9 h-9 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
@@ -25,53 +35,131 @@
                     <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold" id="headerSub">Securing Connection</p>
                 </div>
             </div>
+            <button class="bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1.5 hover:opacity-90 transition active:scale-95 shadow-lg shadow-orange-500/20">
+                <i class="fas fa-crown"></i>
+                <span>PREMIUM</span>
+            </button>
         </header>
 
         <main class="flex-1 overflow-y-auto relative pb-24 px-6 pt-4">
-            <div id="screen-home" class="space-y-6">
+            <div id="screen-home" class="space-y-6 transition-all duration-300">
+                <div class="bg-slate-800/40 border border-slate-800 rounded-2xl p-4 flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+                            <i class="fas fa-bolt text-blue-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-semibold text-white">Smart Engine AI</h3>
+                            <p class="text-xs text-slate-400">Best Protocol: V2Ray</p>
+                        </div>
+                    </div>
+                    <div class="bg-blue-500/20 text-blue-300 text-[11px] px-2.5 py-1 rounded-full font-bold border border-blue-500/30">AUTO</div>
+                </div>
+
                 <div class="text-center py-2">
                     <div id="vpnStatusLabel" class="text-lg font-bold text-slate-400 tracking-wide uppercase">Disconnected</div>
                     <div id="vpnTimer" class="text-4xl font-extrabold text-white font-mono mt-1 opacity-40">00:00:00</div>
+                    <div id="connectedIp" class="text-xs text-slate-400 mt-2 font-mono">Your IP: <span id="currentIpText" class="text-blue-400">103.81.76.10</span></div>
                 </div>
 
                 <div class="flex justify-center items-center py-6 relative">
-                    <button id="connectBtn" onclick="Android.toggleVpn()" class="relative w-36 h-36 rounded-full bg-slate-950 border-[6px] border-slate-800 flex flex-col justify-center items-center cursor-pointer select-none transition-all duration-300 hover:scale-105 active:scale-95 z-10 shadow-inner">
-                        <div id="btnIconContainer" class="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center mb-1 text-blue-400 border border-blue-500/20">
+                    <div id="connectingRing" class="absolute w-52 h-52 border-4 border-dashed border-amber-500 rounded-full animate-spin-slow opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+                    <div id="mainGlowRing" class="absolute w-44 h-44 rounded-full bg-blue-500/10 border border-blue-500/20 animate-disconnected-pulse transition-all duration-500"></div>
+                    <button id="connectBtn" onclick="toggleVpn()" class="relative w-36 h-36 rounded-full bg-slate-950 border-[6px] border-slate-800 flex flex-col justify-center items-center cursor-pointer select-none transition-all duration-300 hover:scale-105 active:scale-95 z-10 shadow-inner">
+                        <div id="btnIconContainer" class="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center mb-1 text-blue-400 border border-blue-500/20 transition-colors">
                             <i id="powerIcon" class="fas fa-power-off text-3xl"></i>
                         </div>
                         <span id="btnStatusText" class="text-[11px] font-extrabold tracking-widest text-blue-400 uppercase">TAP CONNECT</span>
                     </button>
+                </div>
+
+                <div class="bg-slate-800/40 border border-slate-800 rounded-3xl p-4 flex justify-between items-center cursor-pointer transition active:scale-98">
+                    <div class="flex items-center space-x-4">
+                        <span id="activeServerFlag" class="text-3xl filter drop-shadow">🇺🇸</span>
+                        <div>
+                            <div class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Selected Location</div>
+                            <h4 id="activeServerName" class="text-sm font-extrabold text-white">United States</h4>
+                            <p id="activeServerCity" class="text-[11px] text-slate-400">New York (Recommended)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-800/20 border border-slate-800/50 rounded-2xl p-3 flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400"><i class="fas fa-arrow-down-long"></i></div>
+                        <div><span class="text-[10px] text-slate-400 block uppercase">Download</span><span id="dlSpeed" class="text-sm font-extrabold font-mono text-slate-200">0.0 Mb/s</span></div>
+                    </div>
+                    <div class="bg-slate-800/20 border border-slate-800/50 rounded-2xl p-3 flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400"><i class="fas fa-arrow-up-long"></i></div>
+                        <div><span class="text-[10px] text-slate-400 block uppercase">Upload</span><span id="ulSpeed" class="text-sm font-extrabold font-mono text-slate-200">0.0 Mb/s</span></div>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
     <script>
-        function updateStatus(state, timer, ip) {
+        let vpnState = 'disconnected';
+        
+        function toggleVpn() {
+            if (typeof Android !== 'undefined') {
+                Android.toggleVpn();
+            } else {
+                // For web preview simulation
+                if (vpnState === 'disconnected') updateStatus('connecting');
+                else updateStatus('disconnected');
+            }
+        }
+
+        function updateStatus(state, timer = "00:00:00", ip = "103.81.76.10") {
+            vpnState = state;
             const label = document.getElementById('vpnStatusLabel');
             const timerEl = document.getElementById('vpnTimer');
             const btnText = document.getElementById('btnStatusText');
             const icon = document.getElementById('powerIcon');
+            const ring = document.getElementById('connectingRing');
+            const glow = document.getElementById('mainGlowRing');
+            const iconBox = document.getElementById('btnIconContainer');
 
             if (state === 'connected') {
-                label.innerText = "CONNECTED";
+                label.innerText = "CONNECTION SECURED";
                 label.className = "text-lg font-bold text-emerald-400 tracking-wide uppercase";
                 timerEl.innerText = timer;
                 timerEl.className = "text-4xl font-extrabold text-emerald-400 font-mono mt-1";
                 btnText.innerText = "CONNECTED";
+                btnText.className = "text-[11px] font-extrabold tracking-widest text-emerald-400 uppercase";
                 icon.className = "fas fa-lock text-3xl";
+                iconBox.className = "w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mb-1 text-emerald-400 border border-emerald-500/30";
+                ring.classList.replace('opacity-100', 'opacity-0');
+                glow.className = "absolute w-44 h-44 rounded-full bg-emerald-500/20 border border-emerald-500/30 animate-connected-pulse transition-all duration-300";
+                document.getElementById('currentIpText').innerText = ip;
             } else if (state === 'connecting') {
-                label.innerText = "CONNECTING...";
+                label.innerText = "Securing Traffic Route...";
                 label.className = "text-lg font-bold text-amber-400 tracking-wide uppercase";
+                btnText.innerText = "CONNECTING...";
+                btnText.className = "text-[11px] font-extrabold tracking-widest text-amber-400 uppercase";
                 icon.className = "fas fa-spinner animate-spin text-3xl";
+                iconBox.className = "w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center mb-1 text-amber-400 border border-amber-500/20";
+                ring.classList.replace('opacity-0', 'opacity-100');
+                glow.className = "absolute w-44 h-44 rounded-full bg-amber-500/10 border border-amber-500/30 transition-all duration-300";
             } else {
-                label.innerText = "DISCONNECTED";
+                label.innerText = "Disconnected";
                 label.className = "text-lg font-bold text-slate-400 tracking-wide uppercase";
                 timerEl.innerText = "00:00:00";
                 timerEl.className = "text-4xl font-extrabold text-white font-mono mt-1 opacity-40";
                 btnText.innerText = "TAP CONNECT";
+                btnText.className = "text-[11px] font-extrabold tracking-widest text-blue-400 uppercase";
                 icon.className = "fas fa-power-off text-3xl";
+                iconBox.className = "w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center mb-1 text-blue-400 border border-blue-500/20";
+                ring.classList.replace('opacity-100', 'opacity-0');
+                glow.className = "absolute w-44 h-44 rounded-full bg-blue-500/10 border border-blue-500/20 animate-disconnected-pulse transition-all duration-500";
+                document.getElementById('currentIpText').innerText = "103.81.76.10";
             }
+        }
+
+        function updateSpeeds(dl, ul) {
+            document.getElementById('dlSpeed').innerText = dl + " Mb/s";
+            document.getElementById('ulSpeed').innerText = ul + " Mb/s";
         }
     </script>
 </body>
