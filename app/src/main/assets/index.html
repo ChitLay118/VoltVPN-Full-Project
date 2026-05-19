@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoltVPN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
+        @keyframes pulseGlow { 0%, 100% { transform: scale(1); opacity: 0.6; box-shadow: 0 0 30px rgba(16, 185, 129, 0.4); } 50% { transform: scale(1.08); opacity: 1; box-shadow: 0 0 50px rgba(16, 185, 129, 0.8); } }
+        .animate-connected-pulse { animation: pulseGlow 3s infinite ease-in-out; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col p-0 overflow-x-hidden">
+    <div class="w-full max-w-md bg-slate-900 shadow-2xl overflow-hidden flex flex-col min-h-screen relative">
+        <header class="px-6 py-4 flex justify-between items-center bg-slate-900 border-b border-slate-800/60 z-40">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <i class="fas fa-shield-halved text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg tracking-wide text-white">Volt<span class="text-blue-500">VPN</span></h1>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold" id="headerSub">Securing Connection</p>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto relative pb-24 px-6 pt-4">
+            <div id="screen-home" class="space-y-6">
+                <div class="text-center py-2">
+                    <div id="vpnStatusLabel" class="text-lg font-bold text-slate-400 tracking-wide uppercase">Disconnected</div>
+                    <div id="vpnTimer" class="text-4xl font-extrabold text-white font-mono mt-1 opacity-40">00:00:00</div>
+                </div>
+
+                <div class="flex justify-center items-center py-6 relative">
+                    <button id="connectBtn" onclick="Android.toggleVpn()" class="relative w-36 h-36 rounded-full bg-slate-950 border-[6px] border-slate-800 flex flex-col justify-center items-center cursor-pointer select-none transition-all duration-300 hover:scale-105 active:scale-95 z-10 shadow-inner">
+                        <div id="btnIconContainer" class="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center mb-1 text-blue-400 border border-blue-500/20">
+                            <i id="powerIcon" class="fas fa-power-off text-3xl"></i>
+                        </div>
+                        <span id="btnStatusText" class="text-[11px] font-extrabold tracking-widest text-blue-400 uppercase">TAP CONNECT</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function updateStatus(state, timer, ip) {
+            const label = document.getElementById('vpnStatusLabel');
+            const timerEl = document.getElementById('vpnTimer');
+            const btnText = document.getElementById('btnStatusText');
+            const icon = document.getElementById('powerIcon');
+
+            if (state === 'connected') {
+                label.innerText = "CONNECTED";
+                label.className = "text-lg font-bold text-emerald-400 tracking-wide uppercase";
+                timerEl.innerText = timer;
+                timerEl.className = "text-4xl font-extrabold text-emerald-400 font-mono mt-1";
+                btnText.innerText = "CONNECTED";
+                icon.className = "fas fa-lock text-3xl";
+            } else if (state === 'connecting') {
+                label.innerText = "CONNECTING...";
+                label.className = "text-lg font-bold text-amber-400 tracking-wide uppercase";
+                icon.className = "fas fa-spinner animate-spin text-3xl";
+            } else {
+                label.innerText = "DISCONNECTED";
+                label.className = "text-lg font-bold text-slate-400 tracking-wide uppercase";
+                timerEl.innerText = "00:00:00";
+                timerEl.className = "text-4xl font-extrabold text-white font-mono mt-1 opacity-40";
+                btnText.innerText = "TAP CONNECT";
+                icon.className = "fas fa-power-off text-3xl";
+            }
+        }
+    </script>
+</body>
+</html>

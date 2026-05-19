@@ -1,0 +1,11 @@
+{
+  "server": "1.2.3.4",
+  "port": 443,
+  "id": "uuid-here",
+  "aid": 0,
+  "net": "ws",
+  "path": "/v2ray",
+  "type": "none",
+  "host": "example.com",
+  "tls": "tls"
+}
